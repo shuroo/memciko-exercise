@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ../backend/memciko-exercise
+    container_name: memciko-backend
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ../frontend/memciko-client
+    container_name: memciko-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
