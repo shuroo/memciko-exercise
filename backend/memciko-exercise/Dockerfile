@@ -5,7 +5,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-RUN mvn clean package -DskipTests -Dspring-boot.repackage.mainClass=com.example.taskapi.TaskApiApplication
+RUN mvn clean package -DskipTests -Dspring-boot.repackage.mainClass=com.memciko.example.TaskApiApplication
 
 FROM eclipse-temurin:17-jdk
 

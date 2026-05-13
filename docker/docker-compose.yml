@@ -5,6 +5,12 @@ services:
     container_name: memciko-backend
     ports:
       - "8080:8080"
+  backend-tests:
+    build:
+      context: ../backend/memciko-exercise
+    container_name: memciko-backend-tests
+    command: mvn test
+
 
   frontend:
     build:
