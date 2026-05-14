@@ -123,7 +123,7 @@ function App() {
       <h1>Task Scheduler</h1>
 
       <form onSubmit={handleSubmit} className="form">
-        <h2>{editingId ? "Edit Task" : "Create Task"}</h2>
+        <h2>{editingId ? "Edit Task" : "Create Task 3"}</h2>
 
         <input
           name="taskKey"
@@ -202,7 +202,7 @@ function App() {
         />
 
         <button type="submit">
-          {editingId ? "Update Task" : "Create Task"}
+          {editingId ? "Update Task" : "Create Task 2"}
         </button>
 
         {editingId && (
