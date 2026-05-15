@@ -5,13 +5,19 @@ services:
     container_name: memciko-backend
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/tasks | grep -E '200' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+      
   backend-tests:
     image: maven:3.9.9-eclipse-temurin-23
     working_dir: /app
     volumes:
       - ../backend/memciko-exercise:/app
     command: mvn test
-
 
   frontend:
     build:
@@ -21,3 +27,14 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+
+#   frontend-tests:
+#      build:
+#        context: ../frontend/memciko-client
+#      command: npm run test -- --run
+#      environment:
+#        - VITE_API_URL=http://backend:8080/api/tasks
+#      depends_on:
+#        backend:
+#           condition: service_healthy
+  
