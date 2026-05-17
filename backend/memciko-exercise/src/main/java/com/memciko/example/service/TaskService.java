@@ -4,8 +4,6 @@ import com.memciko.example.job.TaskJob;
 import com.memciko.example.model.Task;
 import org.quartz.*;
 import org.springframework.stereotype.Service;
-
-import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -101,8 +99,15 @@ public class TaskService {
         //Make sure that the task ( like 'log task') is not created twice. this also satisfies the pre defined tasks requirements
         boolean exists = tasks.values().stream()
                 .anyMatch(existingTask ->
-                        existingTask.getTaskKey() != null &&
-                                existingTask.getTaskKey().equals(task.getTaskKey())
+                        (
+                                // The FE sends empty strings and not nulls.. Hence checking nulls only wasn't working
+                                task.getTaskKey()!=null &&
+                                        (!task.getTaskKey().isEmpty())
+                                        && existingTask.getTaskKey() != null
+                                        && !existingTask.getTaskKey().isEmpty()
+                                        &&
+                                existingTask.getTaskKey().equalsIgnoreCase(task.getTaskKey())
+                        )
                 );
 
         if (exists) {

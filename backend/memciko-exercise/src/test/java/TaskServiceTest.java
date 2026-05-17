@@ -190,4 +190,36 @@ class TaskServiceTest {
 
         assertEquals("Task not found", exception.getMessage());
     }
+
+    /**
+     * Tests that creating a task with an existing task key is rejected.
+     *
+     * <p>
+     * The predefined system task "LOG_TASK" already exists in the service
+     * initialization, therefore creating another task with the same
+     * task key should throw a {@link RuntimeException}.
+     * </p>
+     *
+     * @throws SchedulerException if Quartz scheduling fails
+     */
+    @Test
+    void createTask_shouldRejectExistingSystemTaskKey() throws SchedulerException {
+
+        Task duplicateTask = new Task();
+        duplicateTask.setTaskKey("LOG_TASK");
+        duplicateTask.setName("Another Log Task");
+        duplicateTask.setDescription("Duplicate task");
+        duplicateTask.setActive(false);
+        duplicateTask.setEditable(true);
+
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskService.createTask(duplicateTask)
+        );
+
+        assertEquals(
+                "Task already exists: LOG_TASK",
+                exception.getMessage()
+        );
+    }
 }
