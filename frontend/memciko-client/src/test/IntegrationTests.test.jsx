@@ -1,11 +1,75 @@
-import { describe, test, expect } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
+
+import { Provider } from "react-redux";
+import store from "../app/store.jsx";
 import App from "../App";
+
+const mockTasks = [
+  {
+    id: 1,
+    name: "Log Task",
+    description: "Writes logs",
+    cronExpression: "0/30 * * * * ?",
+    active: false,
+    editable: false,
+    runOnce: false,
+    startAt: null,
+    parameters: null,
+    taskKey: "LOG_TASK"
+  },
+  {
+    id: 2,
+    name: "Dummy Email Sender",
+    description: "Sends dummy emails",
+    cronExpression: "0 0/5 * * * ?",
+    active: false,
+    editable: false,
+    runOnce: false,
+    startAt: null,
+    parameters: null,
+    taskKey: "EMAIL_TASK"
+  },
+  {
+    id: 3,
+    name: "Dummy DB Query",
+    description: "Runs dummy DB query",
+    cronExpression: "0 0/10 * * * ?",
+    active: false,
+    editable: false,
+    runOnce: false,
+    startAt: null,
+    parameters: null,
+    taskKey: "DB_QUERY_TASK"
+  }
+];
+
+beforeEach(() => {
+  globalThis.fetch = vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(mockTasks)
+    })
+  );
+});
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+function renderApp() {
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
 
 describe("Create Task integration tests", () => {
   test("renders create task form and tasks table", async () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByRole("heading", { name: /create task/i })
@@ -15,13 +79,19 @@ describe("Create Task integration tests", () => {
     expect(screen.getByPlaceholderText(/task name/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/description/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/cron expression/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/log message parameter/i)).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText(/log message parameter/i)
+    ).toBeInTheDocument();
 
     expect(screen.getByRole("checkbox", { name: /active/i })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: /editable/i })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: /run once/i })).not.toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: /run once/i })
+    ).not.toBeChecked();
 
-    expect(screen.getByRole("heading", { name: /tasks/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /tasks/i })
+    ).toBeInTheDocument();
 
     expect(await screen.findByText(/LOG_TASK/i)).toBeInTheDocument();
     expect(await screen.findByText(/EMAIL_TASK/i)).toBeInTheDocument();
@@ -29,37 +99,43 @@ describe("Create Task integration tests", () => {
   });
 
   test("allows user to fill the form", () => {
-    render(<App />);
+    renderApp();
 
     fireEvent.change(screen.getByPlaceholderText(/task key/i), {
-      target: { value: "TEST_TASK" },
+      target: { value: "TEST_TASK" }
     });
 
     fireEvent.change(screen.getByPlaceholderText(/task name/i), {
-      target: { value: "Test Task" },
+      target: { value: "Test Task" }
     });
 
     fireEvent.change(screen.getByPlaceholderText(/description/i), {
-      target: { value: "Integration test task" },
+      target: { value: "Integration test task" }
     });
 
     fireEvent.change(screen.getByPlaceholderText(/cron expression/i), {
-      target: { value: "0/10 * * * * ?" },
+      target: { value: "0/10 * * * * ?" }
     });
 
     fireEvent.change(screen.getByPlaceholderText(/log message parameter/i), {
-      target: { value: "hello test" },
+      target: { value: "hello test" }
     });
 
     expect(screen.getByPlaceholderText(/task key/i)).toHaveValue("TEST_TASK");
     expect(screen.getByPlaceholderText(/task name/i)).toHaveValue("Test Task");
-    expect(screen.getByPlaceholderText(/description/i)).toHaveValue("Integration test task");
-    expect(screen.getByPlaceholderText(/cron expression/i)).toHaveValue("0/10 * * * * ?");
-    expect(screen.getByPlaceholderText(/log message parameter/i)).toHaveValue("hello test");
+    expect(screen.getByPlaceholderText(/description/i)).toHaveValue(
+      "Integration test task"
+    );
+    expect(screen.getByPlaceholderText(/cron expression/i)).toHaveValue(
+      "0/10 * * * * ?"
+    );
+    expect(screen.getByPlaceholderText(/log message parameter/i)).toHaveValue(
+      "hello test"
+    );
   });
 
   test("allows user to change checkboxes", () => {
-    render(<App />);
+    renderApp();
 
     const active = screen.getByRole("checkbox", { name: /active/i });
     const editable = screen.getByRole("checkbox", { name: /editable/i });

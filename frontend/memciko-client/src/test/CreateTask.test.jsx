@@ -1,35 +1,68 @@
-import { describe, test, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, test, expect, afterEach, beforeEach, vi } from "vitest";
+import { render, screen, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
+
+import { Provider } from "react-redux";
+
 import App from "../App";
+import store from "../app/store.jsx";
+
+beforeEach(() => {
+  globalThis.fetch = vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve([])
+    })
+  );
+});
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+function renderApp() {
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
 
 describe("Task Scheduler UI", () => {
   test("renders main title", () => {
-    render(<App />);
+    renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /task scheduler/i })
+      screen.getByRole("heading", {
+        level: 1,
+        name: /task scheduler/i
+      })
     ).toBeInTheDocument();
   });
 
   test("renders create task section title", () => {
-    render(<App />);
+    renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /create task/i })
+      screen.getByRole("heading", {
+        name: /create task/i
+      })
     ).toBeInTheDocument();
   });
 
   test("renders create task button", () => {
-    render(<App />);
+    renderApp();
 
     expect(
-      screen.getByRole("button", { name: /create task/i })
+      screen.getByRole("button", {
+        name: /create task/i
+      })
     ).toBeInTheDocument();
   });
 
   test("renders task name input", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByPlaceholderText(/task name/i)
@@ -37,7 +70,7 @@ describe("Task Scheduler UI", () => {
   });
 
   test("renders description input", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByPlaceholderText(/description/i)
@@ -45,7 +78,7 @@ describe("Task Scheduler UI", () => {
   });
 
   test("renders cron expression input", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByPlaceholderText(/cron expression/i)
@@ -53,7 +86,7 @@ describe("Task Scheduler UI", () => {
   });
 
   test("renders log message parameter input", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByPlaceholderText(/log message parameter/i)
@@ -61,18 +94,28 @@ describe("Task Scheduler UI", () => {
   });
 
   test("renders checkboxes", () => {
-    render(<App />);
+    renderApp();
 
-    expect(screen.getByLabelText(/active/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/editable/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/run once/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/active/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/editable/i)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(/run once/i)
+    ).toBeInTheDocument();
   });
 
   test("renders tasks table", () => {
-    render(<App />);
+    renderApp();
 
     expect(
-      screen.getByRole("heading", { name: /tasks/i })
+      screen.getByRole("heading", {
+        name: /tasks/i
+      })
     ).toBeInTheDocument();
 
     expect(screen.getByText(/id/i)).toBeInTheDocument();

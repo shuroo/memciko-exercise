@@ -1,10 +1,17 @@
+import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import store from "../app/store.jsx";
 import App from "../App";
 
 describe("Run Once", () => {
 
   test("toggles run once checkbox", () => {
-    render(<App />);
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    );
 
     const checkbox = screen.getByRole("checkbox", {
       name: /Run Once/i
