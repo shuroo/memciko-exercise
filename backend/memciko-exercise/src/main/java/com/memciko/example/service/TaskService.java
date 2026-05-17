@@ -9,6 +9,14 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Class to provide a spring service and manage business logic for scheduler;
+ * Service layer responsible for managing application tasks and integrating
+ * with the Quartz Scheduler.
+ *
+ * @author shiri rave
+ * @since 05/26
+ */
 @Service
 public class TaskService {
 
@@ -48,10 +56,22 @@ public class TaskService {
         tasks.put(task.getId(), task);
     }
 
+    /**
+     * Returns all registered tasks.
+     *
+     * @return list of all tasks
+     */
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks.values());
     }
 
+    /**
+     * Returns a task by its identifier.
+     *
+     * @param id task identifier
+     * @return matching task
+     * @throws RuntimeException if task does not exist
+     */
     public Task getTaskById(Long id) {
         Task task = tasks.get(id);
 
@@ -61,6 +81,21 @@ public class TaskService {
 
         return task;
     }
+
+
+    /***
+     * Creates a new task and schedules it if marked as active.
+     *
+     * <p>
+     * Prevents duplicate task creation by validating the task key.
+     * </p>
+     *
+     * @param task task to create
+     * @return created task with generated identifier
+     * @throws RuntimeException if a task with the same task key already exists
+     * @throws SchedulerException if Quartz scheduling fails
+     */
+
 
     public com.memciko.example.model.Task createTask(com.memciko.example.model.Task task) throws SchedulerException {
         //Make sure that the task ( like 'log task') is not created twice. this also satisfies the pre defined tasks requirements
@@ -84,6 +119,21 @@ public class TaskService {
 
         return task;
     }
+
+    /**
+     * Updates an existing editable task.
+     *
+     * <p>
+     * Existing scheduled jobs are deleted before applying updates.
+     * If the updated task is active, a new Quartz job is scheduled.
+     * </p>
+     *
+     * @param id identifier of the task to update
+     * @param updatedTask updated task data
+     * @return updated task
+     * @throws RuntimeException if task does not exist or is not editable
+     * @throws SchedulerException if Quartz scheduling fails
+     */
 
     public Task updateTask(Long id, Task updatedTask) throws SchedulerException {
         Task existingTask = getTaskById(id);
@@ -110,6 +160,12 @@ public class TaskService {
         return existingTask;
     }
 
+    /**
+     * Deletes a scheduled Quartz job by task identifier.
+     *
+     * @param id task identifier
+     * @throws SchedulerException if Quartz job deletion fails
+     */
     public void deleteTask(Long id) throws SchedulerException {
         Task existingTask = getTaskById(id);
 
@@ -121,6 +177,24 @@ public class TaskService {
         tasks.remove(id);
     }
 
+    /**
+     * Schedules a Quartz job for the provided task.
+     *
+     * <p>
+     * Supports:
+     * </p>
+     * <ul>
+     *     <li>One-time execution using {@code startAt}</li>
+     *     <li>Recurring execution using cron expressions</li>
+     * </ul>
+     *
+     * <p>
+     * Dynamic task parameters are added into the Quartz {@link JobDataMap}.
+     * </p>
+     *
+     * @param task task to schedule
+     * @throws SchedulerException if Quartz scheduling fails
+     */
     private void scheduleTask(Task task) throws SchedulerException {
 
         JobDataMap jobDataMap = new JobDataMap();
@@ -171,6 +245,12 @@ public class TaskService {
         scheduler.scheduleJob(jobDetail, trigger);
     }
 
+    /**
+     * Deletes a scheduled Quartz job by task identifier.
+     *
+     * @param id task identifier
+     * @throws SchedulerException if Quartz job deletion fails
+     */
     private void deleteScheduledJob(Long id) throws SchedulerException {
         JobKey jobKey = new JobKey("task-job-" + id, "tasks");
 

@@ -1,10 +1,14 @@
 package com.memciko.example.job;
 
 import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 
+/**
+ * Class to implement quartz jobs API
+ * @author Shiri Rave
+ * @since 05/2026
+ *
+ */
 public class TaskJob implements Job {
 
     @Override

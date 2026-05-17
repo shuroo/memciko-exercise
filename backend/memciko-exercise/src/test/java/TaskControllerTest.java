@@ -14,6 +14,12 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+/**
+ * Class to test controller
+ * @author shiri rave
+ * @since 05/26
+ */
 class TaskControllerTest {
 
     private final TaskService taskService = mock(TaskService.class);
@@ -23,6 +29,10 @@ class TaskControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Method to create tasks and data for further testing.
+     * @throws Exception - Expect can throw a typed exception, or a general exception if task creating fails
+     */
     @Test
     void getAllTasks_shouldReturnTasks() throws Exception {
         Task task = new Task();
@@ -39,6 +49,10 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Log Task"));
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     @Test
     void createTask_shouldCreateTask() throws Exception {
         Task task = new Task();
